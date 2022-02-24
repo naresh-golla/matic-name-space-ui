@@ -39,7 +39,7 @@ header{
 }
 
 .subtitle {
-  font-size: 16px;
+  font-size: 24px;
   color: white;
 }
 
@@ -383,7 +383,8 @@ body {
     align-items: center;
   }
   .subtitle{
-    font-size:20px;
+    font-size:24px;
+    font-weight: 600;
   }
   .logo{
     width: 80px;
@@ -407,7 +408,8 @@ body {
     width: 320px;
     background:transparent;
     box-shadow: 0px 0px 10px 3px rgb(255 255 255 / 12%);
-    background-image: linear-gradient( 149deg, #59acd9 11.2%, rgb(128 255 221 / 50%) 57.8%, rgb(165 0 255 / 41%) 85.9% );
+    /* background-image: linear-gradient( 149deg, #59acd9 11.2%, rgb(128 255 221 / 50%) 57.8%, rgb(165 0 255 / 41%) 85.9% ); */
+    background-image: linear-gradient( 149deg, #59acd9 11.2%, rgb(0 255 187 / 55%) 57.8%, rgb(165 0 255 / 41%) 85.9% );
   }
   .edit-icon {
     width: 20px;
@@ -416,11 +418,39 @@ body {
     font-size: 22px;
   }
   .link, .mint-item p{
-    color: white;
-    font-weight: bold;
+    color: #152c06d9;
+    font-weight: 400;
     font-size: 22px;
   }
   .mint-item{
     background-image: linear-gradient( 336deg, #59acd9 11.2%, rgb(128 255 221 / 50%) 57.8%, rgb(165 0 255 / 20%) 85.9% );
+  }
+  /* .modal-class{
+    color: black;
+  } */
+  .modal-class>div{
+    height:150px;
+    background-image: linear-gradient( 149deg, #59acd9 11.2%, rgb(128 255 221 / 50%) 57.8%, rgb(165 0 255 / 41%) 85.9% ) !important;
+    border-radius: 15px;
+  }
+  .modal-class>div div{
+    height: 150px;
+    margin: auto !important;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    /* color: #000000b8; */
+    font-weight: 600;
+    font-size: 22px;
+    background: -webkit-linear-gradient(#366f87, #272d42);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  } 
+  .modal-class>div div a{
+    margin-left: 5px;
+    border-bottom: 2px solid #366f87;
+  }
+  ul canvas{
+    z-index: 100000 !important;
   }
 }

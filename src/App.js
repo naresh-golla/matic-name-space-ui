@@ -1,5 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import { ethers } from "ethers";
+import Modal, {closeStyle} from 'simple-react-modal'
+
 import './styles/App.css';
 import twitterLogo from './assets/twitter-logo.svg';
 import { Input } from './components/Input';
@@ -8,14 +10,21 @@ import contractAbi from "./utils/contractAbi.json"
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
 import { networks } from './utils/networks';
+import Confetti from "./components/Confetti"
+import ModalComponent from "./components/ModalComponent"
 
 // Constants
 const CONTRACT_ADDRESS = "0x5e83bC571CEFeE4808466ECFb4Ac5F9F6B8e776a"
 const tld = '.matic';
 
+// const OPENSEA_CONTRACT = "https://testnets.opensea.io/assets/mumbai/" + CONTRACT_ADDRESS
+
 const App = () => {
 
   const [mints, setMints] = useState([]);
+  const [isModal, setIsModal] = useState(false); 
+  const [modalData, setModalData] = useState(""); 
+  const [confetti, setConfetti] = useState(false);
   const [loading, setLoading] = useState(false);
   const [network, setNetwork] = useState('');
   const [editing, setEditing] = useState(false);
@@ -143,7 +152,6 @@ const App = () => {
   },[])
 
   useEffect(()=>{
-    console.log("domain",inputF)
   },[inputF])
 
   useEffect(() => {
@@ -151,8 +159,7 @@ const App = () => {
       fetchMints();
     }
   }, [currentAccount, network]);
-
-
+  
   const mintDomain = async () => {
     let {domain, record} = inputF;
 
@@ -168,6 +175,7 @@ const App = () => {
     console.log("Minting Domain ", inputF.domain, "with price", price);
 
     try {
+      setLoading(true);
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, contractAbi.abi, signer);
@@ -182,6 +190,14 @@ const App = () => {
         tx = await contract.setRecord(domain, record);
         await tx.wait();
         console.log("Record set! https://mumbai.polygonscan.com/tx/"+tx.hash);
+        let modalText = `Your Domain ${domain} minted` ;
+
+        setLoading(false);
+
+        setIsModal(!isModal);
+        setModalData(modalText)
+
+        setConfetti(!confetti)
 
         setTimeout(() => {
           fetchMints();
@@ -191,11 +207,17 @@ const App = () => {
           domain:"",
           record:""
         })
+
+        setTimeout(() => {
+        setConfetti(false)
+        }, 2500);
       }else{
         alert("Transaction failed! Please try again");
+        setLoading(false);
       }
       
     } catch (error) {
+      setLoading(false);
       console.log("error while minting, please try again", error)
     }
   }
@@ -312,7 +334,7 @@ const renderMints = () => {
 	if (currentAccount && mints.length > 0) {
 		return (
 			<div className="mint-container">
-				<p className="subtitle"> Recently minted domains!</p>
+				<p className="subtitle"> Recently minted domains! ✨</p>
 				<div className="mint-list">
 					{ mints.map((mint, index) => {
 						return (
@@ -342,7 +364,6 @@ const renderMints = () => {
 
 const editRecord = (mint) => {
 	console.log("Editing record for", mint);
-  //  const {value,name} = e.target;
    const domain = mint.name;
    const record = mint.record;
 
@@ -355,13 +376,21 @@ const editRecord = (mint) => {
 }
 
 const cancelEdit = () =>{
+  setConfetti(!confetti)
+  setTimeout(() => {
+    setConfetti(false)
+  }, 25000);
+
   setEditing(false)
   setInputF({
     domain:"",
     record:""
   })
 }
-  
+
+  const isModalFn = (isModalState) =>{
+    setIsModal(isModalState)
+  }
 
   return (
 		<div className="App">
@@ -374,11 +403,17 @@ const cancelEdit = () =>{
       </div>
 
       }
+      <ul>
+     { confetti && <Confetti />}
+      </ul>
+
+      <ModalComponent data = {modalData} isModal = {isModal} isModalFn={isModalFn}/>
+
 				<div className="header-container">
 					<header>
             <div className="left">
               <p className="title">💜 Matic Name Service</p>
-              <p className="subtitle">Your immortal API on the blockchain!</p>
+              <p className="subtitle">Your immortal DOMAIN on the blockchain!</p>
             </div>
             {/* Display a logo and wallet connection status*/}
             <div className="right">
