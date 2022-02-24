@@ -275,11 +275,11 @@ const App = () => {
     try {
       const {ethereum} = window;
       if(ethereum){
-        const provider = ethers.providers.Web3Provider(ethereum);
+        const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, contractAbi.abi, signer);
 
-        let tx = await contract.setRecord(name,record)
+        let tx = await contract.setRecord(domain,record)
         await tx.wait();
         console.log("record set https://mumbai.polygonscan.com/tx/"+tx.hash)
 
@@ -376,11 +376,6 @@ const editRecord = (mint) => {
 }
 
 const cancelEdit = () =>{
-  setConfetti(!confetti)
-  setTimeout(() => {
-    setConfetti(false)
-  }, 25000);
-
   setEditing(false)
   setInputF({
     domain:"",
