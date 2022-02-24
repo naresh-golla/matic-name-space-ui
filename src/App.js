@@ -54,7 +54,7 @@ const App = () => {
         })
         if(accounts.length !== 0){
           console.log("accounts[0]",accounts[0]);
-          setCurrentAccount(accounts)
+          setCurrentAccount(accounts[0])
         }else{
           console.log("not authorisation to sign in")
         }
@@ -185,6 +185,7 @@ const App = () => {
       const recipt = await tx.wait();
 
       if(recipt.status === 1){
+        console.log("tx",tx)
         console.log("Domain minted! https://mumbai.polygonscan.com/tx/"+tx.hash);
 
         tx = await contract.setRecord(domain, record);
@@ -363,6 +364,7 @@ const renderMints = () => {
 
 
 const editRecord = (mint) => {
+  window.scrollTo(0,250)
 	console.log("Editing record for", mint);
    const domain = mint.name;
    const record = mint.record;

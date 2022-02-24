@@ -447,8 +447,9 @@ body {
     -webkit-text-fill-color: transparent;
   } 
   .modal-class>div div a{
-    margin-left: 5px;
-    border-bottom: 2px solid #366f87;
+    text-decoration: underline;
+    text-decoration-color: #d996ff !important;
+    
   }
   ul canvas{
     z-index: 100000 !important;
