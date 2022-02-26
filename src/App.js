@@ -17,13 +17,14 @@ import ModalComponent from "./components/ModalComponent"
 const CONTRACT_ADDRESS = "0x5e83bC571CEFeE4808466ECFb4Ac5F9F6B8e776a"
 const tld = '.matic';
 
-// const OPENSEA_CONTRACT = "https://testnets.opensea.io/assets/mumbai/" + CONTRACT_ADDRESS
-
 const App = () => {
 
   const [mints, setMints] = useState([]);
   const [isModal, setIsModal] = useState(false); 
-  const [modalData, setModalData] = useState(""); 
+  const [modalData, setModalData] = useState({
+    domainMinted: "",
+    tokenId: ""
+  }); 
   const [confetti, setConfetti] = useState(false);
   const [loading, setLoading] = useState(false);
   const [network, setNetwork] = useState('');
@@ -180,25 +181,22 @@ const App = () => {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, contractAbi.abi, signer);
       console.log("Going to pop wallet now to pay gas...")
-
       let tx = await contract.registers(domain,{value:ethers.utils.parseEther(price)})
       const recipt = await tx.wait();
-
       if(recipt.status === 1){
-        console.log("tx",tx)
         console.log("Domain minted! https://mumbai.polygonscan.com/tx/"+tx.hash);
-
         tx = await contract.setRecord(domain, record);
         await tx.wait();
         console.log("Record set! https://mumbai.polygonscan.com/tx/"+tx.hash);
-        let modalText = `Your Domain ${domain} minted` ;
-
+        const reciptArgs = recipt.events && recipt.events[1].args &&  recipt.events[1].args[2];
+        const tokenId = parseInt(reciptArgs._hex);
         setLoading(false);
-
         setIsModal(!isModal);
-        setModalData(modalText)
-
-        setConfetti(!confetti)
+        setModalData({
+          domainMinted: domain,
+          tokenId: tokenId
+        });
+        setConfetti(!confetti);
 
         setTimeout(() => {
           fetchMints();
@@ -212,6 +210,7 @@ const App = () => {
         setTimeout(() => {
         setConfetti(false)
         }, 2500);
+
       }else{
         alert("Transaction failed! Please try again");
         setLoading(false);
@@ -330,37 +329,56 @@ const App = () => {
         setLoading(false)
   }
 
-// Add this render function next to your other render functions
 const renderMints = () => {
 	if (currentAccount && mints.length > 0) {
-		return (
-			<div className="mint-container">
-				<p className="subtitle"> Recently minted domains! ✨</p>
-				<div className="mint-list">
-					{ mints.map((mint, index) => {
-						return (
-							<div className="mint-item" key={index}>
-								<div className='mint-row'>
-									<a className="link" href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
-										<p className="underlined">{' '}{mint.name}{tld}{' '}</p>
-									</a>
-									{/* If mint.owner is currentAccount, add an "edit" button*/}
-                  {}
-									{ mint.ownerAddr.toLowerCase() === currentAccount.toLowerCase() ?
-										<button className="edit-button" onClick={() => editRecord(mint)}>
-											<img className="edit-icon" src="https://img.icons8.com/metro/26/000000/pencil.png" alt="Edit button" />
-										</button>
-										:
-										null
-									}
-								</div>
-					<p> {mint.record} </p>
-				</div>)
-				})}
-			</div>
-		</div>);
-	}
-};
+  let isAddrHasNft = mints.filter((_mint, index) => _mint.ownerAddr.toLowerCase() === currentAccount.toLowerCase());
+  console.log("isAddrHasNft",isAddrHasNft)
+    return(
+      <div className="mint-container">     
+      {isAddrHasNft && <p className="subtitle">Your Recently minted domains! ✨</p>}
+      <div className="mint-list">  
+      {
+        mints.filter((_mint, index) => _mint.ownerAddr.toLowerCase() === currentAccount.toLowerCase()).map((mint, index) =>{
+          return (
+              <div className="mint-item" key={index}>
+                  <div className='mint-row'>
+                    <a className="link" href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
+                      <p className="underlined">{' '}{mint.name}{tld}{' '}</p>
+                    </a>
+                    {/* If mint.owner is currentAccount, add an "edit" button*/}
+                    <button className="edit-button" onClick={() => editRecord(mint)}>
+                      <img className="edit-icon" src="https://img.icons8.com/metro/26/000000/pencil.png" alt="Edit button" />
+                    </button>
+                  </div>
+                  <p> {mint.record} </p>
+              </div>
+          )
+        })
+      }
+      </div>
+
+      <p className="subtitle"> All minted domains on Matic Name Space ✨</p>
+      <div className="mint-list">  
+      {
+        mints.filter((_mint, index) => _mint.ownerAddr.toLowerCase() !== currentAccount.toLowerCase()).map((mint, index) =>{
+          return (
+              <div className="mint-item" key={index}>
+                  <div className='mint-row'>
+                    <a className="link" href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
+                      <p className="underlined">{' '}{mint.name}{tld}{' '}</p>
+                    </a>
+                  </div>
+                  <p> {mint.record} </p>
+              </div>
+          )
+        })
+      }
+      </div>
+      </div>
+    )
+    }
+  }
+      
 
 
 const editRecord = (mint) => {
